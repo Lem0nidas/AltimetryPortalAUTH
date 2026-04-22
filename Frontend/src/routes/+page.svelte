@@ -3,7 +3,6 @@
 	import { goto } from '$app/navigation';
 	import * as THREE from 'three';
 	import gsap from 'gsap';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 	let canvas: HTMLDivElement;
@@ -21,13 +20,13 @@
 		const renderer = new THREE.WebGLRenderer({
 			antialias: false // true for smoother edges, but it costs performance
 		});
+		renderer.setClearColor(0x000000, 0);
 
-		const timeline = gsap.timeline();
+		const timeline = gsap.timeline({ delay: 0.5 });
 
 		// const axesHelper = new THREE.AxesHelper(15);
 		// scene.add(axesHelper);
 
-		// camera.position.set(0.5, 2, 8);
 		camera.position.set(0.2, 2.5, 1.5);
 		camera.lookAt(0, 0, 0);
 
@@ -35,7 +34,7 @@
 			camera.position,
 			{
 				x: 0,
-				y: 0.4,
+				y: 0.2,
 				z: 8.7,
 				duration: 3,
 				ease: 'power2.inOut',
@@ -48,7 +47,7 @@
 
 		timeline.to(camera.position, {
 			y: 0,
-			duration: 1,
+			duration: 2,
 			ease: 'power2.out',
 			onUpdate: () => camera.lookAt(0, 0, 0)
 		});
@@ -64,21 +63,8 @@
 			0
 		);
 
-		timeline.delay(0.5);
-
 		renderer.setSize(width, height);
 		canvas.appendChild(renderer.domElement);
-
-		// Texture;
-		// const textLoader = new THREE.TextureLoader();
-		// textLoader
-		// 	.loadAsync('/Yale Bright Star Map.jpg')
-		// 	.then((texture) => {
-		// 		scene.background = texture;
-		// 	})
-		// 	.catch((error) => {
-		// 		console.log(error);
-		// 	});
 
 		const starFieldMaterial = new THREE.PointsMaterial({
 			color: 0xffffff,
@@ -88,13 +74,21 @@
 		});
 
 		const starsGeometry = new THREE.BufferGeometry();
-		const starsVertices = [];
+		const starsVertices: number[] = [];
+		const minRadius = 150;
+		const maxRadius = 250;
+
 		for (let i = 0; i < 10000; i++) {
-			starsVertices.push(
-				(Math.random() - 0.5) * 500,
-				(Math.random() - 0.5) * 500,
-				(Math.random() - 0.5) * 500
-			);
+			const theta = Math.random() * Math.PI * 2;
+			const phi = Math.acos(2 * Math.random() - 1);
+
+			const radius = minRadius + Math.random() * (maxRadius - minRadius);
+
+			const x = radius * Math.sin(phi) * Math.cos(theta);
+			const y = radius * Math.sin(phi) * Math.sin(theta);
+			const z = radius * Math.cos(phi);
+
+			starsVertices.push(x, y, z);
 		}
 		starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
 
@@ -113,56 +107,22 @@
 						earthModel.position.set(0, -1, 0);
 						earthModel.scale.set(0.002, 0.002, 0.002);
 						earthModel.rotation.y = THREE.MathUtils.degToRad(150);
-						gsap.to(earthModel.position, {
-							y: 0,
-							duration: 2,
-							ease: 'power3.out'
-						});
-						gsap.to(earthModel.rotation, {
-							y: '+=0.5',
-							duration: 3,
-							ease: 'none'
-						});
 						scene.add(earthModel);
-
-						// Set earthModel and camera position
-						const box = new THREE.Box3().setFromObject(gltf.scene);
-						const size = box.getSize(new THREE.Vector3()).length();
-						// camera.position.set(0, 0, size * 2);
 
 						// Add lighting
 						const light = new THREE.AmbientLight(0xffffff, 0.2);
-						scene.add(light);
-						// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-						// scene.add(directionalLight);
-						// const helperLight = new THREE.DirectionalLightHelper(directionalLight, 1);
-						// scene.add(helperLight);
 						const sun = new THREE.DirectionalLight(0xffffff, 1.8);
 						sun.position.set(5, 2, 5);
-						scene.add(sun);
-
 						sun.target = earthModel;
-						scene.add(sun.target);
 
+						// I am not using rimLight yet
 						const rimLight = new THREE.DirectionalLight(0x4aa3ff, 0.35);
 						rimLight.position.set(-5, 1, -3);
 						rimLight.color.set(0x6fb6ff);
 						rimLight.intensity = 0.25;
-
-						scene.add(rimLight);
-
 						rimLight.target = earthModel;
-						scene.add(rimLight.target);
 
-						// const rimLight = new THREE.DirectionalLight(0x4aa3ff, 0.3);
-						// rimLight.position.set(-5, 0, -5);
-						// scene.add(rimLight);
-
-						// Group camera and light
-						// camera.add(directionalLight);
-						// directionalLight.position.set(0, 2, -size);
-						// directionalLight.rotation.set(0.5, 0, 0);
-						scene.add(camera);
+						scene.add(light, sun, sun.target);
 						resolve(earthModel);
 					},
 					undefined,
@@ -227,11 +187,6 @@
 			return scaleFactor;
 		}
 
-		// Add orbit controls
-		// const controls = new OrbitControls(camera, canvas);
-		// controls.autoRotate = true;
-		// controls.enableDamping = true;
-
 		function onResize() {
 			const width = window.innerWidth;
 			const height = window.innerHeight;
@@ -251,7 +206,7 @@
 
 		//Raycasting
 		const raycaster = new THREE.Raycaster();
-		const mouse = new THREE.Vector2();
+		const mouseDown = new THREE.Vector2();
 		let mouseDownPos = { x: 0, y: 0 };
 		let selectedModel: THREE.Object3D | null = null;
 		let isDragging = false;
@@ -263,10 +218,10 @@
 
 			mouseDownPos.x = event.clientX;
 			mouseDownPos.y = event.clientY;
-			mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-			mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+			mouseDown.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+			mouseDown.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-			raycaster.setFromCamera(mouse, camera);
+			raycaster.setFromCamera(mouseDown, camera);
 
 			const intersects = raycaster.intersectObjects([earthModel, ...tempModels], true);
 
@@ -292,7 +247,7 @@
 			const movementX = event.movementX || 0;
 			const movementY = event.movementY || 0;
 
-			if (selectedModel.name == 'Earth') {
+			if (selectedModel.name === 'Earth') {
 				targetRotationX += movementY * 0.005;
 				selectedModel.rotation.y += movementX * 0.005;
 			} else {
@@ -322,16 +277,16 @@
 
 		const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 		const point = new THREE.Vector3();
+		const mouseHover = new THREE.Vector2();
 		let distanceFromEarth: number = 100;
 
 		function checkHover(event: MouseEvent) {
-			const mouse = new THREE.Vector2();
 			const rect = canvas.getBoundingClientRect();
 
-			mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-			mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+			mouseHover.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+			mouseHover.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-			raycaster.setFromCamera(mouse, camera);
+			raycaster.setFromCamera(mouseHover, camera);
 
 			const intersects = raycaster.intersectObjects([earthModel, ...tempModels], true);
 
@@ -355,7 +310,6 @@
 
 		// Animate the scene
 		let previousTime = 0;
-		const speed = 1;
 
 		function animate(time: number) {
 			if (previousTime == 0) {
@@ -364,13 +318,11 @@
 			}
 			const delta = (time - previousTime) / 1000;
 			previousTime = time;
-			// let distance = 0 - earthModel.position.y;
-			// if (earthModel.position.y < 0) {
-			// 	earthModel.position.y += (0 - earthModel.position.y) * speed * delta;
-			// 	if (Math.abs(distance) < 0.005) {
-			// 		earthModel.position.y = 0;
-			// 	}
-			// }
+
+			if (camera.position.y == 0) {
+				starField.rotation.x += delta * 0.005;
+				starField.rotation.y += delta * 0.01;
+			}
 
 			if (selectedModel && selectedModel.name === 'Earth') {
 				if (targetRotationX > maxRotationX) {
@@ -408,14 +360,31 @@
 				model.mesh.position.x = -(Math.sin(model.angle) * model.radius);
 				model.mesh.position.y = Math.cos(model.angle) * model.radius;
 			});
-			// controls.update();
-			renderer.setPixelRatio(1);
+
 			renderer.render(scene, camera);
 			// renderer.render(scene, debugCamera);
 		}
 
 		async function init() {
 			await loadEarth();
+			timeline.to(
+				earthModel.position,
+				{
+					y: 0,
+					duration: 2,
+					ease: 'power3.out'
+				},
+				0
+			);
+			timeline.to(
+				earthModel.rotation,
+				{
+					y: '+=0.5',
+					duration: 3,
+					ease: 'none'
+				},
+				0
+			);
 			tempModels = await loadAllSatModels();
 			allModels = tempModels.map((model, i) => {
 				const offset = (i / tempModels.length) * Math.PI * 2;
@@ -436,11 +405,23 @@
 		});
 
 		// Stop animation when changing tabs
+		let animating = false;
+		function startAnimation() {
+			if (animating) return;
+			renderer.setAnimationLoop(animate);
+			animating = true;
+		}
+
+		function endAnimation() {
+			renderer.setAnimationLoop(null);
+			animating = false;
+		}
+
 		document.addEventListener('visibilitychange', () => {
 			if (document.hidden) {
-				renderer.setAnimationLoop(null);
+				endAnimation();
 			} else {
-				renderer.setAnimationLoop(animate);
+				startAnimation();
 			}
 		});
 	});
@@ -455,3 +436,20 @@
 </script>
 
 <div class="canvas-container" bind:this={canvas}></div>
+
+<style>
+	div {
+		/* background: radial-gradient(
+			circle at center,
+			#00091b 0%,
+			#000a1a 35%,
+			#00050f 65%,
+			#000000 100%
+		); */
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 0;
+		background: linear-gradient(to top, #000000 0%, #000714 85%);
+	}
+</style>

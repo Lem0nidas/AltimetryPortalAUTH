@@ -7,9 +7,10 @@
 	import BookText from '/home/leon/node_modules/@lucide/svelte/dist/icons/book-text';
 	import CircleHelp from '/home/leon/node_modules/@lucide/svelte/dist/icons/circle-help';
 	import Mail from '/home/leon/node_modules/@lucide/svelte/dist/icons/mail';
-
 	import { fade } from 'svelte/transition';
+	import { page } from '$app/state';
 
+	const isHome = $derived(page.url.pathname === '/');
 	let menuOpen = $state(false);
 
 	function toggleMenu() {
@@ -17,7 +18,7 @@
 	}
 </script>
 
-<nav>
+<nav class:transparent={isHome}>
 	<button class="menu-btn" onclick={() => (menuOpen = !menuOpen)}><Menu /></button>
 
 	<div class="title">Altimetry Portal</div>
@@ -63,6 +64,21 @@
 		justify-content: space-between;
 		padding: 0.75rem 1.5rem;
 		background-color: #1a1a1a;
+		color: white;
+		border-radius: 0 0 12px 12px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+		transition: background-color 0.3s ease;
+	}
+
+	nav.transparent {
+		display: flex;
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1.5rem;
+		background: rgba(0, 0, 0, 0);
 		color: white;
 		border-radius: 0 0 12px 12px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
