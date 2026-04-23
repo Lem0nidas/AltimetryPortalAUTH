@@ -32,3 +32,15 @@
 		/>
 	{/if}
 </fieldset>
+
+<style>
+	input[type='checkbox'] {
+		margin-right: 0.5rem;
+		width: 40px;
+		height: 22px;
+	}
+
+	input[type='checkbox']:checked {
+		/* --pico-background-color: #000714; */
+	}
+</style>

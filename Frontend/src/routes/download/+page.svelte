@@ -6,39 +6,47 @@
 	let currentInfo = $state<'raw' | 'processed' | null>(null);
 </script>
 
-<h1>Download page</h1>
+<div class="page">
+	<h1>Download page</h1>
 
-<div class="box">
-	<p>Here you can download the altimetry data.</p>
+	<div class="box">
+		<p>Here you can download the altimetry data.</p>
 
-	<div class="button-wrapper">
-		<a
-			href="/download/raw"
-			class="button"
-			onmouseenter={() => (currentInfo = 'raw')}
-			onmouseleave={() => (currentInfo = null)}
-			aria-disabled={currentInfo === 'processed'}
-		>
-			Download Raw Data
-		</a>
+		<div class="button-wrapper">
+			<a
+				href="/download/raw"
+				class="button"
+				onmouseenter={() => (currentInfo = 'raw')}
+				onmouseleave={() => (currentInfo = null)}
+				aria-disabled={currentInfo === 'processed'}
+			>
+				Download Raw Data
+			</a>
 
-		<a
-			href="/download/processed"
-			class="button"
-			onmouseenter={() => (currentInfo = 'processed')}
-			onmouseleave={() => (currentInfo = null)}
-			aria-disabled={currentInfo === 'raw'}
-		>
-			Download Processed Data
-		</a>
+			<a
+				href="/download/processed"
+				class="button"
+				onmouseenter={() => (currentInfo = 'processed')}
+				onmouseleave={() => (currentInfo = null)}
+				aria-disabled={currentInfo === 'raw'}
+			>
+				Download Processed Data
+			</a>
+		</div>
 	</div>
+
+	<HoverInfo {currentInfo} />
+
+	{@render children?.()}
 </div>
 
-<HoverInfo {currentInfo} />
-
-{@render children?.()}
-
 <style>
+	.page {
+		height: 100vh;
+		padding: 1rem;
+		background: radial-gradient(circle at top, #1e293b, #020617);
+	}
+
 	.button-wrapper {
 		width: auto;
 		display: flex;
@@ -59,18 +67,18 @@
 	.button {
 		display: inline-block;
 		padding: 0.75rem 1.5rem;
-		background-color: #007bbd;
+		background: linear-gradient(55deg, #238cbd, #2563eb);
 		color: white;
 		text-decoration: none;
 		border-radius: 5px;
 		font-weight: bold;
 		cursor: pointer;
 		text-align: center;
-		transition: opacity 0.5s ease;
+		transition: all 0.5s ease;
 	}
 
 	.button:hover {
-		background-color: #006799;
+		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 	}
 
 	.button[aria-disabled='true'] {

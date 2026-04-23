@@ -4,9 +4,11 @@
 	let { children } = $props();
 </script>
 
-<Nav />
+<div class="page">
+	<Nav />
 
-{@render children()}
+	{@render children()}
+</div>
 
 <style>
 	:global(body, h1, h2, h3, p) {
@@ -18,5 +20,10 @@
 		--page-padding-side: 4.8rem;
 		--page-padding-top: 6rem;
 		--page-padding-bottom: 6rem;
+		--nav-height: clamp(60px, 15vh, 90px);
+	}
+
+	.page {
+		height: 100vh;
 	}
 </style>

@@ -55,24 +55,27 @@
 		}
 	}
 
-	nav {
+	nav:not(.transparent) {
 		display: flex;
-		position: sticky;
+		position: fixed;
+		width: 100%;
+		height: var(--nav-height);
 		top: 0;
 		z-index: 1;
 		align-items: center;
 		justify-content: space-between;
 		padding: 0.75rem 1.5rem;
-		background-color: #1a1a1a;
+		background: rgba(0, 12, 34, 0.2);
+		backdrop-filter: blur(5px);
 		color: white;
 		border-radius: 0 0 12px 12px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-		transition: background-color 0.3s ease;
 	}
 
 	nav.transparent {
 		display: flex;
 		position: sticky;
+		height: var(--nav-height);
 		top: 0;
 		z-index: 1;
 		align-items: center;
@@ -82,7 +85,6 @@
 		color: white;
 		border-radius: 0 0 12px 12px;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-		transition: background-color 0.3s ease;
 	}
 
 	.title {

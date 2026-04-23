@@ -14,7 +14,8 @@
 	let toggles = $state({
 		pass: false,
 		dateSwitch: true,
-		startDate: false
+		startDate: false,
+		test: true
 	});
 
 	let messages = $state({
@@ -29,7 +30,15 @@
 		if (selectedSatellite.name != '') {
 			toggles.dateSwitch = false;
 			selectedStartDate = selectedSatellite.start;
-			selectedEndDate = (selectedSatellite.end == 'present') ? currentDate : selectedSatellite.end;
+			selectedEndDate = selectedSatellite.end == 'present' ? currentDate : selectedSatellite.end;
+		}
+
+		if (selectedSatellite.name && selectedCycle) {
+			toggles.test = false;
+		} else if (selectedSatellite.name && toggles.startDate) {
+			toggles.test = false;
+		} else {
+			toggles.test = true;
 		}
 
 		if (!toggles.pass) {
@@ -73,92 +82,110 @@
 	}
 </script>
 
-<h1>Download Raw Data page</h1>
+<div class="page">
+	<h1>Download Raw Data page</h1>
 
-<form onsubmit={handleSubmit}>
-	<fieldset>
-		<label for="satellite">Choose a satellite:</label>
-		<select id="satellite" bind:value={selectedSatellite} required>
-			<option value="" disabled selected>Select one</option>
-			{#each satellites as sat}
-				<option value={sat}>{sat.name}</option>
-			{/each}
-		</select>
-	</fieldset>
+	<form onsubmit={handleSubmit}>
+		<fieldset>
+			<label for="satellite">Choose a satellite:</label>
+			<select id="satellite" bind:value={selectedSatellite} required>
+				<option value="" disabled selected>Select one</option>
+				{#each satellites as sat}
+					<option value={sat}>{sat.name}</option>
+				{/each}
+			</select>
+		</fieldset>
 
-	<fieldset disabled={toggles.startDate}>
-		<label for="cycle">Type the cycle number:</label>
-		<input
-			type="text"
-			id="cycle"
-			placeholder="e.g. 015"
-			maxlength="3"
-			bind:value={selectedCycle}
-			onblur={() => {
-				if (selectedCycle?.trim()) {
-					selectedCycle = selectedCycle.padStart(3, '0');
-				}
-			}}
-		/>
-	</fieldset>
-
-	<Switch bind:selectedProperty={selectedPass} type="Pass" disable={toggles.startDate} />
-
-	<fieldset disabled={toggles.dateSwitch}>
-		<label for="start-date-switch">
+		<fieldset disabled={toggles.startDate}>
+			<label for="cycle">Type the cycle number:</label>
 			<input
-				type="checkbox"
-				name="start-date-switch"
-				role="switch"
-				bind:checked={toggles.startDate}
+				type="text"
+				id="cycle"
+				placeholder="e.g. 015"
+				maxlength="3"
+				bind:value={selectedCycle}
+				onblur={() => {
+					if (selectedCycle?.trim()) {
+						selectedCycle = selectedCycle.padStart(3, '0');
+					}
+				}}
 			/>
-			Date Based Download
-		</label>
-		{#if toggles.startDate}
-			<label for="start-date">Pick Date:</label>
-			<div class="date-container">
-				<input 
-					type="date" 
-					name="start-date" 
-					min={selectedSatellite.start} 
-					max={selectedSatellite.end} 
-					bind:value={selectedStartDate} 
+		</fieldset>
+
+		<Switch bind:selectedProperty={selectedPass} type="Pass" disable={toggles.startDate} />
+
+		<fieldset disabled={toggles.dateSwitch}>
+			<label for="start-date-switch">
+				<input
+					type="checkbox"
+					name="start-date-switch"
+					role="switch"
+					bind:checked={toggles.startDate}
 				/>
-				<input 
-					type="date" 
-					name="end-date" 
-					min={selectedSatellite.start} 
-					max={selectedSatellite.end} 
-					bind:value={selectedEndDate} 
-				/>
-			</div>
+				Date Based Download
+			</label>
+			{#if toggles.startDate}
+				<label for="start-date">Pick Date:</label>
+				<div class="date-container">
+					<input
+						type="date"
+						name="start-date"
+						min={selectedSatellite.start}
+						max={selectedSatellite.end}
+						bind:value={selectedStartDate}
+					/>
+					<input
+						type="date"
+						name="end-date"
+						min={selectedSatellite.start}
+						max={selectedSatellite.end}
+						bind:value={selectedEndDate}
+					/>
+				</div>
+			{/if}
+		</fieldset>
+
+		<button type="submit" disabled={toggles.test}>Submit</button>
+	</form>
+
+	{#each Object.entries(messages) as [key, value]}
+		{#if value}
+			<hr />
+			<p>{value}</p>
 		{/if}
-	</fieldset>
-
-	<button type="submit">Submit</button>
-</form>
-
-{#each Object.entries(messages) as [key, value]}
-	{#if value}
-		<hr />
-		<p>{value}</p>
-	{/if}
-{/each}
+	{/each}
+</div>
 
 <style>
-	/* Wrapper to center everything */
+	.page {
+		padding-top: calc(var(--nav-height) + 1rem);
+		padding-bottom: var(--page-padding-bottom);
+		background: url('/stardust.png'), rgba(0, 12, 34, 0.5);
+		background-position: 50% 15%;
+	}
+
 	form {
 		max-width: 600px;
 		margin: 2rem auto;
 		padding: 2rem;
 		border-radius: 10px;
-		background-color: #1c1f26;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+		border: 1px solid rgba(255, 255, 255, 0.055);
+		background: rgba(0, 0, 0, 0.2);
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(5px);
 	}
+	/* Version 2
+	form {
+		background: rgba(20, 25, 40, 0.85);
+		backdrop-filter: blur(12px);
+		border-radius: 16px;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+		padding: 2rem;
+	} */
 
 	h1 {
 		text-align: center;
-		margin-top: 1.5rem;
+		margin: 0;
 		color: white;
 	}
 
@@ -170,17 +197,18 @@
 	label {
 		display: block;
 		margin-bottom: 0.5rem;
-		color: #ccc;
+		color: #9ca3af;
 		font-weight: 500;
+		/* font-size: 0.85rem; */
 	}
 
 	input[type='text'],
 	select {
 		width: 100%;
-		padding: 0.5rem;
-		border-radius: 5px;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
 		border: 1px solid #444;
-		background-color: #1f1f1f;
+		background-color: rgb(26, 39, 56, 0.5);
 		color: white;
 	}
 
@@ -196,21 +224,29 @@
 
 	input[type='checkbox'] {
 		margin-right: 0.5rem;
+		width: 40px;
+		height: 22px;
+	}
+
+	input:focus,
+	select:focus {
+		outline: none;
+		border: 1px solid #3b82f6;
+		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 	}
 
 	button {
-		width: 100%;
-		padding: 0.75rem;
-		background-color: #007baf;
-		color: white;
-		font-weight: bold;
+		background: linear-gradient(135deg, #0ea5e9, #2563eb);
+		border-radius: 10px;
 		border: none;
-		border-radius: 5px;
-		cursor: pointer;
+		padding: 0.8rem;
+		font-weight: 600;
+		transition: 0.5s;
+		width: 60%;
 	}
 
 	button:hover {
-		background-color: #006799;
+		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 	}
 
 	p {
