@@ -23,7 +23,7 @@
 		--nav-height: clamp(60px, 15vh, 90px);
 	}
 
-	.page {
+	div.page {
 		height: 100vh;
 	}
 </style>

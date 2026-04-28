@@ -33,13 +33,13 @@
 	});
 
 	let allCycles: any[] = $state([]);
-	$effect( () => {
+	$effect(() => {
 		if (selectedSatellite.code) {
 			(async () => {
 				allCycles = await requestCycles(selectedSatellite.code);
 			})();
 		}
-	})
+	});
 
 	function addToList() {
 		if (!listBoxItems.some((item) => item.name === selectedVariable.name)) {
@@ -66,17 +66,21 @@
 			console.log(err);
 		}
 	}
-	
+
 	let selectedCycles: Set<string> = $state(new Set());
 	let lastClickedIndex: number | null = null;
 
-	function handleClickCheckbox(index: number, item: { cycle: string, start: string, end: string }, event: MouseEvent) {
+	function handleClickCheckbox(
+		index: number,
+		item: { cycle: string; start: string; end: string },
+		event: MouseEvent
+	) {
 		if (event.shiftKey && lastClickedIndex !== null) {
-		const [start, end] = [lastClickedIndex, index].sort((a, b) => a - b);
-		
-		for (let i = start; i <= end; i++) {
-			selectedCycles.add(allCycles[i].cycle);
-		}
+			const [start, end] = [lastClickedIndex, index].sort((a, b) => a - b);
+
+			for (let i = start; i <= end; i++) {
+				selectedCycles.add(allCycles[i].cycle);
+			}
 		} else {
 			if (selectedCycles.has(item.cycle)) {
 				selectedCycles.delete(item.cycle);
@@ -92,12 +96,11 @@
 	let allSelected: boolean = $derived(selectedCycles.size == allCycles.length);
 	function toggleAll() {
 		if (allSelected) {
-			selectedCycles = new Set(allCycles.map(item => item.cycle));
+			selectedCycles = new Set(allCycles.map((item) => item.cycle));
 		} else {
 			selectedCycles = new Set();
 		}
 	}
-
 
 	let inputValue = $state('');
 	let formatedInputValue = $derived(inputValue.padStart(3, '0'));
@@ -108,137 +111,140 @@
 
 		if (checkboxElement) {
 			checkboxElement.scrollIntoView({
-				behavior: "instant",
-				block: "center"
+				behavior: 'instant',
+				block: 'center'
 			});
 		}
-	})
+	});
 </script>
 
-<h1>Download Processed Data page</h1>
+<div class="page">
+	<h1>Download Processed Data page</h1>
 
-<form onsubmit={handleSubmit}>
-	<fieldset>
-		<label for="satellite">Choose a satellite</label>
-		<select id="satellite" bind:value={selectedSatellite} required>
-			<option value="" disabled selected>Select one</option>
-			{#each satellites as sat}
-				<option value={sat}>{sat.name}</option>
-			{/each}
-		</select>
-	</fieldset>
-
-	<fieldset disabled={!selectedSatellite.code}>
-		<div class="cycle-search-wrapper">
-			<div class="cycle-search">
-				<label for="cycle-number">
-					Cycle number
-				</label>
-				<input 
-					type="text" 
-					id="cycle-number"
-					placeholder="Search for a cycle number" 
-					maxlength={3} 
-					bind:value={inputValue}
-				/>
-			</div>
-			<div class="select-all">
-				<label for="select-all">
-					<input 
-						type="checkbox" 
-						name="select-all" 
-						id="select-all" 
-						bind:checked={allSelected}
-						onchange={toggleAll} 
-					/> 
-					Select all the cycles
-				</label>
-			</div>
-		</div>
-
-		<div class="cycle-listbox-wrapper">
-			<ul id="cycle-listbox">
-				{#each allCycles as item, index}
-					<li>
-						<label>
-							<input 
-								type="checkbox"
-								id={String(index)}
-								checked={selectedCycles.has(item.cycle)}
-								bind:this={checkboxMap[item.cycle]}
-								onclick={
-									(e) => handleClickCheckbox(index, item, e)
-								}
-							/>
-							Cycle {item.cycle} | From {item.start} - Until {item.end}
-						</label>
-					</li>
+	<form onsubmit={handleSubmit}>
+		<fieldset>
+			<label for="satellite">Choose a satellite</label>
+			<select id="satellite" bind:value={selectedSatellite} required>
+				<option value="" disabled selected>Select one</option>
+				{#each satellites as sat}
+					<option value={sat}>{sat.name}</option>
 				{/each}
-			</ul>
-		</div>
+			</select>
+		</fieldset>
 
-	</fieldset>
-	
-	<fieldset>
-		<label for="var-listbox">Selected Variables:</label>
-		<div class="var-listbox-wrapper">
-			<ul id="var-listbox">
-				{#each listBoxItems as items, index}
-					<li>
-						<span>{items.name}</span>
-						<button
-							type="button"
-							id="removeButton"
-							onclick={() => removeFromList(index)}
-							aria-label="Remove item"
-						>
-							<X size={16} />
-						</button>
-					</li>
+		<fieldset disabled={!selectedSatellite.code}>
+			<div class="cycle-search-wrapper">
+				<div class="cycle-search">
+					<label for="cycle-number"> Cycle number </label>
+					<input
+						type="text"
+						id="cycle-number"
+						placeholder="Search for a cycle number"
+						maxlength={3}
+						bind:value={inputValue}
+					/>
+				</div>
+				<div class="select-all">
+					<label for="select-all">
+						<input
+							type="checkbox"
+							name="select-all"
+							id="select-all"
+							bind:checked={allSelected}
+							onchange={toggleAll}
+						/>
+						Select all the cycles
+					</label>
+				</div>
+			</div>
+
+			<div class="cycle-listbox-wrapper">
+				<ul id="cycle-listbox">
+					{#each allCycles as item, index}
+						<li>
+							<label>
+								<input
+									type="checkbox"
+									id={String(index)}
+									checked={selectedCycles.has(item.cycle)}
+									bind:this={checkboxMap[item.cycle]}
+									onclick={(e) => handleClickCheckbox(index, item, e)}
+								/>
+								Cycle {item.cycle} | From {item.start} - Until {item.end}
+							</label>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		</fieldset>
+
+		<fieldset>
+			<label for="var-listbox">Selected Variables:</label>
+			<div class="var-listbox-wrapper">
+				<ul id="var-listbox">
+					{#each listBoxItems as items, index}
+						<li>
+							<span>{items.name}</span>
+							<button
+								type="button"
+								id="removeButton"
+								onclick={() => removeFromList(index)}
+								aria-label="Remove item"
+							>
+								<X size={16} />
+							</button>
+						</li>
+					{/each}
+				</ul>
+			</div>
+
+			<label for="variables">Pick variables</label>
+			<select
+				name="variables"
+				id="variables"
+				bind:value={selectedVariable}
+				onchange={addToList}
+				required
+			>
+				<option value={null} disabled selected>Select any amount</option>
+				{#each variables as variable (variable.varName)}
+					<option value={variable}>{variable.name}</option>
 				{/each}
-			</ul>
-		</div>
+			</select>
+		</fieldset>
 
-		<label for="variables">Pick variables</label>
-		<select
-			name="variables"
-			id="variables"
-			bind:value={selectedVariable}
-			onchange={addToList}
-			required
-		>
-			<option value={null} disabled selected>Select any amount</option>
-			{#each variables as variable (variable.varName)}
-				<option value={variable}>{variable.name}</option>
-			{/each}
-		</select>
-	</fieldset>
+		<fieldset id="button">
+			<button type="submit">Submit</button>
+			<label for="file-type-switch">
+				ASCII File
+				<input id="file-type-switch" type="checkbox" role="switch" bind:checked={fileType} />
+				NetCDF File
+			</label>
+		</fieldset>
+	</form>
 
-	<fieldset id="button">
-		<button type="submit">Submit</button>
-		<label for="file-type-switch">
-			ASCII File
-			<input id="file-type-switch" type="checkbox" role="switch" bind:checked={fileType} />
-			NetCDF File
-		</label>
-	</fieldset>
-</form>
-
-<Map bind:selectedArea={selectedRegion} />
-{@render children?.()}
+	<Map bind:selectedArea={selectedRegion} />
+	{@render children?.()}
+</div>
 
 <style>
-	:root {
-		--switch-color: #fd0dd5; /* active color */
-		--switch-background-color: #adb5bd; /* inactive background */
+	div.page {
+		padding-top: calc(var(--nav-height) + 1rem);
+		padding-bottom: var(--page-padding-bottom);
+		background: url('/stardust.png'), rgba(0, 12, 34, 0.5);
+		background-position: 50% 15%;
 	}
+
 	form {
 		max-width: 600px;
 		margin: 2rem auto;
 		padding: 2rem;
 		border-radius: 10px;
-		background-color: #1c1f26;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		background: rgba(0, 0, 0, 0.2);
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 
 	h1 {
@@ -255,6 +261,16 @@
 	fieldset#button {
 		display: grid;
 		justify-content: center;
+	}
+
+	input[type='text'],
+	select {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		border: 1px solid #444;
+		background-color: rgb(26, 39, 56, 0.5);
+		color: white;
 	}
 
 	ul#cycle-listbox li {
@@ -289,6 +305,20 @@
 		cursor: default;
 	}
 
+	button[type='submit'] {
+		background: linear-gradient(250deg, #0ea5e9, #2563eb);
+		border-radius: 10px;
+		border: none;
+		padding: 0.8rem;
+		font-weight: 600;
+		transition: 0.5s;
+	}
+
+	button[type='submit']:hover {
+		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+		transform: translateY(-1px);
+	}
+
 	button#removeButton {
 		font-size: 1rem;
 		line-height: 1;
@@ -313,17 +343,15 @@
 		margin: auto 50px;
 	}
 
-	/* TODO Fix the colors */
 	input#file-type-switch {
 		margin-left: 0.5rem;
-		--pico-background-color: #14c814;
-		--pico-border-color: #146414;
-		--pico-form-element-focus-color: #66aacc;
+		--pico-background-color: rgba(122, 162, 247, 0.5);
+		--pico-border-color: rgba(204, 160, 204, 0.2);
+		--pico-form-element-focus-color: none;
 	}
 
 	input#file-type-switch:checked {
-		--pico-background-color: #14cc8e;
-		--pico-border-color: #14cc32;
+		--pico-background-color: #508aa8;
 	}
 
 	input#cycle-number {
@@ -332,19 +360,21 @@
 
 	.var-listbox-wrapper {
 		height: 270px;
+		margin-bottom: 1rem;
 		border: 1px solid #2a3140;
 		border-radius: 20px;
-		background-color: #1c212c;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-		margin-bottom: 1rem;
+		background-color: rgb(26, 39, 56, 0.5);
+		color: white;
 	}
 
 	.cycle-listbox-wrapper {
 		height: 200px;
 		border: 1px solid #2a3140;
 		border-radius: 20px;
-		background-color: #1c212c;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+		background-color: rgb(26, 39, 56, 0.5);
+		color: white;
 		margin-bottom: 1rem;
 		overflow-y: auto;
 	}
@@ -357,6 +387,6 @@
 	}
 
 	.select-all {
-		padding-top: 20px
+		padding-top: 20px;
 	}
 </style>

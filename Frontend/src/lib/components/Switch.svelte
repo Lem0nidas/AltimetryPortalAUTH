@@ -34,6 +34,15 @@
 </fieldset>
 
 <style>
+	input[type='text'] {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		border: 1px solid #444;
+		background-color: rgb(26, 39, 56, 0.5);
+		color: white;
+	}
+
 	input[type='checkbox'] {
 		margin-right: 0.5rem;
 		width: 40px;

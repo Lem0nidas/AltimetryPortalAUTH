@@ -439,13 +439,6 @@
 
 <style>
 	div {
-		/* background: radial-gradient(
-			circle at center,
-			#00091b 0%,
-			#000a1a 35%,
-			#00050f 65%,
-			#000000 100%
-		); */
 		position: fixed;
 		top: 0;
 		left: 0;

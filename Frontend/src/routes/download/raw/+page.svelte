@@ -157,7 +157,7 @@
 </div>
 
 <style>
-	.page {
+	div.page {
 		padding-top: calc(var(--nav-height) + 1rem);
 		padding-bottom: var(--page-padding-bottom);
 		background: url('/stardust.png'), rgba(0, 12, 34, 0.5);
@@ -169,10 +169,11 @@
 		margin: 2rem auto;
 		padding: 2rem;
 		border-radius: 10px;
-		border: 1px solid rgba(255, 255, 255, 0.055);
+		border: 1px solid rgba(255, 255, 255, 0.05);
 		background: rgba(0, 0, 0, 0.2);
 		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 	/* Version 2
 	form {
@@ -199,7 +200,6 @@
 		margin-bottom: 0.5rem;
 		color: #9ca3af;
 		font-weight: 500;
-		/* font-size: 0.85rem; */
 	}
 
 	input[type='text'],
@@ -220,6 +220,9 @@
 
 	input[type='date'] {
 		width: 40%;
+		border: 1px solid #444;
+		background-color: rgb(26, 39, 56, 0.5);
+		color: white;
 	}
 
 	input[type='checkbox'] {
@@ -247,6 +250,7 @@
 
 	button:hover {
 		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+		transform: translateY(-1px);
 	}
 
 	p {

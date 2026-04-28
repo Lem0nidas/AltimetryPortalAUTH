@@ -41,10 +41,13 @@
 </div>
 
 <style>
-	.page {
+	div.page {
 		height: 100vh;
 		padding: 1rem;
-		background: radial-gradient(circle at top, #1e293b, #020617);
+		padding-top: calc(var(--nav-height) + 1rem);
+		padding-bottom: var(--page-padding-bottom);
+		background: url('/stardust.png'), rgba(0, 12, 34, 0.5);
+		background-position: 50% 15%;
 	}
 
 	.button-wrapper {
@@ -60,8 +63,11 @@
 		margin: 2rem auto;
 		padding: 2rem;
 		border-radius: 10px;
-		background-color: #1c1f26;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		background-color: rgba(0, 0, 0, 0.2);
+		box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 
 	.button {
