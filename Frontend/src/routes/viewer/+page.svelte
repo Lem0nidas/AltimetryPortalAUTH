@@ -70,7 +70,7 @@
 				csvContent += `${index},${val}\n`;
 			});
 		}
-		
+
 		const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
 		const url = URL.createObjectURL(blob);
@@ -90,27 +90,30 @@
 		await tick();
 
 		const variableObject = ncData[variable];
-		const xTime: string[] = ncData['time'].values.map((sec: number) => new Date(Date.UTC(1985, 0, 1) + sec *1000).toISOString());
+		const xTime: string[] = ncData['time'].values.map((sec: number) =>
+			new Date(Date.UTC(1985, 0, 1) + sec * 1000).toISOString()
+		);
 		const yData: number[] = variableObject.values;
 		const name: string = variableObject.attributes['long_name'];
 		const units: string = variableObject.attributes['units'];
 		const layout = {
-			title: {text: `${name} (${units})`, font: { size: 20 }, x: 0.5},
+			title: { text: `${name} (${units})`, font: { size: 20 }, x: 0.5 }
 			// xaxis: { title: 'Time', type: 'date', font: { size: 20 }},
 			// yaxis: { title: `${name} (${units})`, font: { size: 20 }},
 		};
-		
-		Plotly.newPlot(
-			linePlotDiv, 
-			[{
-				x: xTime,
-				y: yData,
-				type: "scatter",
-				mode: "lines+markers",
 
-			}], 
-			layout, 
-			{ responsive: true },
+		Plotly.newPlot(
+			linePlotDiv,
+			[
+				{
+					x: xTime,
+					y: yData,
+					type: 'scatter',
+					mode: 'lines+markers'
+				}
+			],
+			layout,
+			{ responsive: true }
 		);
 		setTimeout(() => Plotly.Plots.resize(linePlotDiv), 50);
 	}
@@ -131,30 +134,32 @@
 				projection: { type: 'natural earth' },
 				showland: true,
 				landcolor: 'rgb(240, 240, 240)',
-				subunitcolor: 'rgb(217, 217, 217)',
+				subunitcolor: 'rgb(217, 217, 217)'
 			},
-			title: {text: `${name} (${units})`, font: { size: 20 }, x: 0.5},
+			title: { text: `${name} (${units})`, font: { size: 20 }, x: 0.5 }
 		};
 
 		Plotly.newPlot(
 			mapPlotDiv,
-			[{
-				type: 'scattergeo',
-				mode: 'markers',
-				lat: lat,
-				lon: lon,
-				marker: {
-					size: 12,
-					color: values,
-					colorscale: 'Bluered',
-					cmin: Math.min(...values),
-					cmax: Math.max(...values),
-					colorbar: { title: `${name} values` }
-				},
-				text: values.map(v => `${v}`),
-			}],
+			[
+				{
+					type: 'scattergeo',
+					mode: 'markers',
+					lat: lat,
+					lon: lon,
+					marker: {
+						size: 12,
+						color: values,
+						colorscale: 'Bluered',
+						cmin: Math.min(...values),
+						cmax: Math.max(...values),
+						colorbar: { title: `${name} values` }
+					},
+					text: values.map((v) => `${v}`)
+				}
+			],
 			layout,
-			{ responsive: true },
+			{ responsive: true }
 		);
 		setTimeout(() => Plotly.Plots.resize(mapPlotDiv), 50);
 	}
@@ -204,97 +209,119 @@
 	on:drop={handleFileDrop}
 />
 
-{#if ncData}
-	<div class="container">
-		<div class="left">
-			<strong>"filename": {name}</strong>
-			<br />
-			<ul>
-				{#each Object.entries(ncData) as [key, value]}
-					<li>
-						<button class="var-button" onclick={() => handleVariableClick(key)}>{key}</button>
-					</li>
-				{/each}
-			</ul>
-		</div>
-
-		<div class="divider"></div>
-
-		<div class="right">
-			{#if selectedVariable}
-				<strong>"{selectedVariable}":</strong>
+<div class="page">
+	{#if ncData}
+		<div class="main-container">
+			<div class="left">
+				<strong>"filename": {name}</strong>
+				<br />
 				<ul>
-					{#each Object.entries(ncData[selectedVariable].attributes) as [key, value]}
-						<li>{key} = {value}</li>
+					{#each Object.entries(ncData) as [key, value]}
+						<li>
+							<button class="var-button" onclick={() => handleVariableClick(key)}>{key}</button>
+						</li>
 					{/each}
 				</ul>
+			</div>
 
-				<div class="options">
-					<button class="generator-button" onclick={() => handleCsvRequest(selectedVariable)}
-						>Generate CSV data</button
-					>
-					<button class="line-plot-button" onclick={() => handleLinePlot(selectedVariable)}>Create line plot</button>
-					<button class="map-plot-button" onclick={() => handleMapPlot(selectedVariable)}>Create map plot</button>
-				</div>
-			{/if}
+			<div class="divider"></div>
+
+			<div class="right">
+				{#if selectedVariable}
+					<strong>"{selectedVariable}":</strong>
+					<ul>
+						{#each Object.entries(ncData[selectedVariable].attributes) as [key, value]}
+							<li>{key} = {value}</li>
+						{/each}
+					</ul>
+
+					<div class="options">
+						<button class="generator-button" onclick={() => handleCsvRequest(selectedVariable)}
+							>Generate CSV data</button
+						>
+						<button class="line-plot-button" onclick={() => handleLinePlot(selectedVariable)}
+							>Create line plot</button
+						>
+						<button class="map-plot-button" onclick={() => handleMapPlot(selectedVariable)}
+							>Create map plot</button
+						>
+					</div>
+				{/if}
+			</div>
 		</div>
-	</div>
-{:else}
-	<div class="wrapper">
-		<div class="cover-group">
-			<p>Drop or Select a file</p>
-			<input
-				id="hiddenInput"
-				type="file"
-				style="display: none;"
-				accept=".nc"
-				multiple={false}
-				onchange={handleFileUpload}
-			/>
-			<button class="upload-button" onclick={() => openExplorer()}>Browse ...</button>
+	{:else}
+		<div class="wrapper">
+			<div class="cover-group">
+				<p>Drop or Select a file</p>
+				<input
+					id="hiddenInput"
+					type="file"
+					style="display: none;"
+					accept=".nc"
+					multiple={false}
+					onchange={handleFileUpload}
+				/>
+				<button class="upload-button" onclick={() => openExplorer()}>Browse ...</button>
+			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
 
-{#if isDragging}
-	<div class="drop-overlay" transition:fade={{ duration: 300 }}>
-		<p>Drop NetCDF file</p>
-	</div>
-{/if}
-
-{#if showLinePlot}
-	<div class="line-plot-overlay" transition:fade={{ duration: 300 }}>
-		<div class="line-plot-container">
-			<button class="close-btn" onclick={() => showLinePlot = false}>
-				<X size={20} />
-			</button>
-
-			<div class="line-plot" bind:this={linePlotDiv}></div>
+	{#if isDragging}
+		<div class="drop-overlay" transition:fade={{ duration: 300 }}>
+			<p>Drop NetCDF file</p>
 		</div>
-	</div>
-{/if}
+	{/if}
 
-{#if showMapPlot}
-	<div class="map-plot-overlay" transition:fade={{ duration: 300 }}>
-		<div class="map-plot-container">
-			<button class="close-btn" onclick={() => showMapPlot = false}>
-				<X size={20} />
-			</button>
+	{#if showLinePlot}
+		<div class="line-plot-overlay" transition:fade={{ duration: 300 }}>
+			<div class="line-plot-container">
+				<button class="close-btn" onclick={() => (showLinePlot = false)}>
+					<X size={20} />
+				</button>
 
-			<div class="map-plot" bind:this={mapPlotDiv}></div>
+				<div class="line-plot" bind:this={linePlotDiv}></div>
+			</div>
 		</div>
-	</div>
-{/if}
+	{/if}
+
+	{#if showMapPlot}
+		<div class="map-plot-overlay" transition:fade={{ duration: 300 }}>
+			<div class="map-plot-container">
+				<button class="close-btn" onclick={() => (showMapPlot = false)}>
+					<X size={20} />
+				</button>
+
+				<div class="map-plot" bind:this={mapPlotDiv}></div>
+			</div>
+		</div>
+	{/if}
+</div>
 
 <style>
+	div.page {
+		display: flex;
+		justify-content: center;
+		height: 100%;
+		padding: 1rem;
+		padding-top: calc(var(--nav-height) + 1rem);
+		background: url('/stardust.png'), rgba(0, 12, 34, 0.5);
+		background-position: 15% 50%;
+	}
+
 	.var-button {
 		all: unset;
 		cursor: pointer;
 	}
 
-	.container {
+	.main-container {
 		display: flex;
-		height: calc(105vh - var(--page-padding-top));
+		flex: 1;
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		background-color: rgba(0, 0, 0, 0.2);
+		box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 
 	.wrapper {
@@ -310,14 +337,18 @@
 
 	.left,
 	.right {
+		display: flex;
 		flex: 1;
 		padding: 1rem;
 		overflow-x: auto;
 		flex-direction: column;
+		scrollbar-width: none;
 	}
 
 	.divider {
+		height: 95%;
 		width: 1px;
+		align-self: center;
 		background: #ccc;
 	}
 

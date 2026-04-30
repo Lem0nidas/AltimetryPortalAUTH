@@ -7,54 +7,63 @@
 	import BookText from '/home/leon/node_modules/@lucide/svelte/dist/icons/book-text';
 	import CircleHelp from '/home/leon/node_modules/@lucide/svelte/dist/icons/circle-help';
 	import Mail from '/home/leon/node_modules/@lucide/svelte/dist/icons/mail';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
+	import { onDestroy, onMount } from 'svelte';
 
+	const menuItems = [
+		{ href: '/', label: 'Home', icon: Home },
+		{ href: '/download', label: 'Download', icon: Download },
+		{ href: '/viewer', label: 'NetCDF Viewer', icon: View },
+		{ href: '/info/overview', label: 'More Info', icon: Info },
+		// {href: '/about', label: 'About', icon: BookText},
+		// {href: '/help', label: 'Help', icon: CircleHelp},
+		{ href: '/contact', label: 'Contact', icon: Mail }
+	];
 	const isHome = $derived(page.url.pathname === '/');
 	let menuOpen = $state(false);
+	let navEl: HTMLElement | null = null;
 
 	function toggleMenu() {
 		menuOpen = !menuOpen;
 	}
+
+	function handleClickOutside(event: MouseEvent) {
+		const target = event.target;
+
+		if (menuOpen && navEl && target instanceof Node && !navEl.contains(target)) {
+			menuOpen = false;
+		}
+	}
+
+	onMount(() => {
+		document.addEventListener('click', handleClickOutside);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 </script>
 
-<nav class:transparent={isHome}>
+<nav bind:this={navEl} class:transparent={isHome}>
 	<button class="menu-btn" onclick={() => (menuOpen = !menuOpen)}><Menu /></button>
 
 	<div class="title">Altimetry Portal</div>
-
-	{#if menuOpen}
-		<div class="dropdown" transition:fade={{ duration: 500 }}>
-			<a href="/" onclick={toggleMenu}><Home /> Home</a>
-			<a href="/download" onclick={toggleMenu}><Download /> <span>Download</span></a>
-			<a href="/viewer" onclick={toggleMenu}><View /> <span>NetCDF Viewer</span></a>
-			<a href="/info" onclick={toggleMenu}><Info /> <span>More Info</span></a>
-			<a href="/about" onclick={toggleMenu}><BookText /> <span>About</span></a>
-			<a href="/help" onclick={toggleMenu}><CircleHelp /> <span>Help</span></a>
-			<a href="/contact" onclick={toggleMenu}><Mail /> <span>Contact</span></a>
-		</div>
-	{/if}
 </nav>
 
+{#if menuOpen}
+	<div class="dropdown" in:fly={{ y: -20, duration: 350 }} out:fade>
+		{#each menuItems as item, i}
+			<a href={item.href} onclick={toggleMenu}>
+				<item.icon />
+				<span>{item.label}</span>
+			</a>
+		{/each}
+	</div>
+{/if}
+
 <style>
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-
-	@keyframes fadeOut {
-		from {
-			opacity: 1;
-		}
-		to {
-			opacity: 0;
-		}
-	}
-
 	nav:not(.transparent) {
 		display: flex;
 		position: fixed;
@@ -111,19 +120,21 @@
 	}
 
 	.dropdown {
-		position: absolute;
-		top: 100%;
-		left: 0;
-		margin-top: 0.5rem;
-		background-color: #2b2b2b;
-		border-radius: 10px;
-		border: 1px solid var(--muted-border-color, #444);
-		box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
-		padding: 0.75rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		position: fixed;
+		top: calc(var(--nav-height) + 0.5rem);
+		left: 1rem;
 		z-index: 100;
+		margin-top: 0.5rem;
+		padding: 0.75rem;
+		gap: 0.5rem;
+		background-color: rgba(0, 0, 0, 0.5);
+		border-radius: 10px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 
 	.dropdown a {

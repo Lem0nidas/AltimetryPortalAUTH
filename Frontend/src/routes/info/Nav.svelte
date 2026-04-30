@@ -52,14 +52,20 @@
 <style>
 	nav {
 		position: fixed;
-		top: auto;
+		top: var(--nav-height);
 		left: 0;
 		width: var(--sidebar-width);
 		height: 100vh;
 		padding-bottom: 10vh;
 		overflow-y: auto;
 		font-size: large;
-		background: hsl(220, 8%, 10%);
+
+		background: rgba(23, 25, 28, 0.25);
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		border-top: 0;
+		box-shadow: 10px 0px 30px rgba(0, 0, 0, 0.7);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(5px);
 	}
 
 	nav ul {

@@ -8,7 +8,7 @@ import netCDF4
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 UPLOAD_DIR: Path = BASE_DIR / "tools" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-MAX_SIZE = 1024*1024
+MAX_SIZE = 2*1024*1024
 
 async def storeNetcdf(file: UploadFile = File(...)) -> dict[str, Any]:
     if file.content_type not in ["application/x-netcdf", "application/netcdf"]:
