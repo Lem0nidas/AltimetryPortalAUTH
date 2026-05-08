@@ -17,6 +17,8 @@ def get_processed(
         file_type: bool,
         ):
 
+    print('Running...')
+
     if not satellite:
         raise ValueError("Satellite not specified")
     
@@ -33,8 +35,10 @@ def get_processed(
 def command_list(satellite: str, options: dict[str, str | list[str]], file: bool) -> list[str]:
     if (not file):
         programm = 'rads2asc'
+        ext='asc'
     else:
         programm = 'rads2nc'
+        ext='nc'
 
     command = [programm, '-S', satellite]
     if not options.get('region'):
@@ -52,7 +56,7 @@ def command_list(satellite: str, options: dict[str, str | list[str]], file: bool
             else:
                 command += [arg_map[key], str(val)]
 
-    command += ['-o', "".join([satellite, ".", programm[:3]])]
+    command += ['-o', f"{satellite}.{ext}"]
     return command
 
 def files_exist(satellite: str, cycles: str | list[str]) -> list:
@@ -64,7 +68,7 @@ def files_exist(satellite: str, cycles: str | list[str]) -> list:
         if not p.is_dir():
             continue
         for cycle in cycles:
-            cycle_path = p / "".join(['c', cycle])
+            cycle_path = p / f"c{cycle}"
             if cycle_path.is_dir():
                 existing.append(cycle_path)
 

@@ -1,3 +1,4 @@
+// TESTING
 export async function requestDownload(satellite: string, cycle: string, pass: string): Promise<string> {
     const response = await fetch(`http://localhost:8000/api/download`, {
         method: 'POST',

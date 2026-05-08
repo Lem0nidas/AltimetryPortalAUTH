@@ -147,13 +147,13 @@
 
 		<button type="submit" disabled={toggles.test}>Submit</button>
 	</form>
-
+	<!-- 
 	{#each Object.entries(messages) as [key, value]}
 		{#if value}
 			<hr />
 			<p>{value}</p>
 		{/if}
-	{/each}
+	{/each} -->
 </div>
 
 <style>
@@ -175,14 +175,6 @@
 		backdrop-filter: blur(5px);
 		-webkit-backdrop-filter: blur(5px);
 	}
-	/* Version 2
-	form {
-		background: rgba(20, 25, 40, 0.85);
-		backdrop-filter: blur(12px);
-		border-radius: 16px;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-		padding: 2rem;
-	} */
 
 	h1 {
 		text-align: center;

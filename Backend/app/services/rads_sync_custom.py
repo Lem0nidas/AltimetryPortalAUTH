@@ -7,7 +7,6 @@ from pydantic import ValidationError
 
 load_dotenv()
 
-# TODO Make improvments
 def get_custom_nc_file(
         satellite: str, 
         cycle_num: str, 

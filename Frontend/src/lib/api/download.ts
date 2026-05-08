@@ -1,3 +1,4 @@
+// Not Used Anymore
 export async function requestLatestDownload(satellite: string): Promise<string> {
     const response = await fetch(`http://localhost:8000/api/download_latest`, {
         method: 'POST',

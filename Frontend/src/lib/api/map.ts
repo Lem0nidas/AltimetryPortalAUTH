@@ -1,5 +1,6 @@
 import type { SelectionBox } from "$lib/types";
 
+// Not Used Anymore
 export async function requestBox(selection: SelectionBox) {
     await fetch ('http://localhost:8000/api/map_info', {
         method: 'POST',
