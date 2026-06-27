@@ -32,12 +32,22 @@
 		date: ''
 	});
 
+	let toggles = $state({
+		disableButton: true
+	});
+
 	let allCycles: any[] = $state([]);
 	$effect(() => {
 		if (selectedSatellite.code) {
 			(async () => {
 				allCycles = await requestCycles(selectedSatellite.code);
 			})();
+		}
+
+		if (selectedSatellite.name && listBoxItems.length > 0) {
+			toggles.disableButton = false;
+		} else {
+			toggles.disableButton = true;
 		}
 	});
 
@@ -214,7 +224,7 @@
 		</fieldset>
 
 		<fieldset id="button">
-			<button type="submit">Submit</button>
+			<button type="submit" disabled={toggles.disableButton}>Submit</button>
 			<label for="file-type-switch">
 				ASCII File
 				<input id="file-type-switch" type="checkbox" role="switch" bind:checked={fileType} />

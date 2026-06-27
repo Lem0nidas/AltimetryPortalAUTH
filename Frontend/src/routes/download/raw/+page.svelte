@@ -15,7 +15,7 @@
 		pass: false,
 		dateSwitch: true,
 		startDate: false,
-		test: true
+		disableButton: true
 	});
 
 	let messages = $state({
@@ -34,11 +34,11 @@
 		}
 
 		if (selectedSatellite.name && selectedCycle) {
-			toggles.test = false;
+			toggles.disableButton = false;
 		} else if (selectedSatellite.name && toggles.startDate) {
-			toggles.test = false;
+			toggles.disableButton = false;
 		} else {
-			toggles.test = true;
+			toggles.disableButton = true;
 		}
 
 		if (!toggles.pass) {
@@ -145,15 +145,8 @@
 			{/if}
 		</fieldset>
 
-		<button type="submit" disabled={toggles.test}>Submit</button>
+		<button type="submit" disabled={toggles.disableButton}>Submit</button>
 	</form>
-	<!-- 
-	{#each Object.entries(messages) as [key, value]}
-		{#if value}
-			<hr />
-			<p>{value}</p>
-		{/if}
-	{/each} -->
 </div>
 
 <style>
@@ -243,10 +236,5 @@
 	button:hover {
 		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 		transform: translateY(-1px);
-	}
-
-	p {
-		text-align: center;
-		color: #ddd;
 	}
 </style>
